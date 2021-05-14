@@ -1,16 +1,31 @@
 package windowapp;
 
+import com.sun.tools.javac.Main;
+
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class PlecakWindowApp extends JFrame {
-    private JButton button1;
+    private JButton generate;
     private JPanel main_panel;
     private JTextField weight;
     private JTextField amount;
     private JTextArea result;
     private JTextField result_value;
+    private JButton sort;
+    private JSlider slider1;
+    private JSlider slider2;
+
+    private void check() {
+        if (weight.getText()==null || weight.getText().equals("")) {
+            JOptionPane.showMessageDialog(PlecakWindowApp.this, "Brak dopuszczalnej wagi plecaka!");
+        }
+        if (amount.getText()==null || amount.getText().equals("")) {
+            JOptionPane.showMessageDialog(PlecakWindowApp.this, "Brak liczby wygenerowanych przedmiotów");
+        }
+    }
 
     public PlecakWindowApp() {
         setContentPane(main_panel);
@@ -20,43 +35,65 @@ public class PlecakWindowApp extends JFrame {
         weight.setText("");
         amount.setText("");
 
-        button1.addActionListener(new ActionListener() {
+        slider1.setPaintTrack(true);
+        slider1.setPaintTicks(true);
+        slider1.setPaintLabels(true);
+        slider1.setMajorTickSpacing(50);
+        slider1.setMinorTickSpacing(5);
+
+        slider2.setPaintTrack(true);
+        slider2.setPaintTicks(true);
+        slider2.setPaintLabels(true);
+        slider2.setMajorTickSpacing(50);
+        slider2.setMinorTickSpacing(5);
+        generate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (weight.getText()==null || weight.getText().equals("")) {
-                    JOptionPane.showMessageDialog(PlecakWindowApp.this, "Brak dopuszczalnej wagi plecaka!");
+                int t1;
+                int t2;
+                //check();
+
+                if (amount.getText().length() > 0 && weight.getText().length() > 0) {
+                    t1 = Integer.parseInt(amount.getText());
+                    t2 = Integer.parseInt(weight.getText());
+                } else {
+                    t1 = slider1.getValue();
+                    t2 = slider2.getValue();
                 }
-                if (amount.getText()==null || amount.getText().equals("")) {
-                    JOptionPane.showMessageDialog(PlecakWindowApp.this, "Brak liczby wygenerowanych przedmiotów");
-                }
+                //check();
+                backpack BP = new backpack(t1, t2);
 
-                if (amount.getText().length()>0 && weight.getText().length()>0) {
+                BP.init();
+                BP.sort();
+                BP.put_in();
 
-                    int t1 = Integer.parseInt(amount.getText());
-                    int t2 = Integer.parseInt(weight.getText());
+                StringBuilder str_tab = new StringBuilder();
 
-                    backpack BP = new backpack(t1, t2);
-
-                    BP.init();
-                    BP.sort();
-                    BP.put_in();
-
-                    StringBuilder str_tab = new StringBuilder();
-
-                    for (int i = 0; i < BP.elements_n; i++) {
-                        if (BP.inout.get(i) == 1) {
-                            str_tab.append(BP.queue.get(i).toString());
-                            str_tab.append(" ");
-                            BP.queue.set(i, 1 + BP.queue.get(i));
-                        }
+                for (int i = 0; i < BP.elements_n; i++) {
+                    if (BP.inout.get(i) == 1) {
+                        str_tab.append(BP.queue.get(i).toString());
+                        str_tab.append(" ");
+                        BP.queue.set(i, 1 + BP.queue.get(i));
                     }
-
-                    String string_result = String.join("", str_tab);
-
-                    result.setText(string_result);
-                    result_value.setText(String.valueOf(BP.bp_value));
                 }
+
+                String string_result = String.join("", str_tab);
+
+                result.setText("");
+                result.setText(string_result);
+                result_value.setText(String.valueOf(BP.bp_value));
+                //}
             }
+        });
+
+
+        sort.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+             //   try {
+             //      playSound("./plecak.wav");
+            }
+
         });
     }
 }
