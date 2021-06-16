@@ -28,18 +28,15 @@ public class Panel extends JPanel implements ActionListener {
     Thread thread;
 
     Panel() {
+        running = "YES";
         setPreferredSize(new Dimension(APP_W,APP_H));
         setBackground(Color.gray);
         random = new Random();
         setFocusable(true);
         MyKeyAdapter key_adapter = new MyKeyAdapter();
         addKeyListener(key_adapter);
-        start();
-    }
-
-    public void start() {
-        running = "YES";
         new_food();
+
         timer = new Timer(SPEED,this);
         timer.start();
 
@@ -113,15 +110,20 @@ public class Panel extends JPanel implements ActionListener {
     }
 
     public void collision() {
-        for(int i=snake_el;i>0;i--) {
-            if((x[0]==x[i]) && (y[0]==y[i]) || x[0]<0 || x[0]>APP_W ||
-                 y[0]<0 || y[0]>APP_H) {
-                running = "NO";
-                timer.stop();
-                thread_working=0;
-                break;
+        thread = new Thread(() ->
+        {
+            for (int i = snake_el; i > 0; i--) {
+                if ((x[0] == x[i]) && (y[0] == y[i]) || x[0] < 0 || x[0] > APP_W ||
+                        y[0] < 0 || y[0] > APP_H) {
+                    running = "NO";
+                    timer.stop();
+                    thread_working = 0;
+                    break;
+                }
             }
-        }
+        });
+        //thread.sleep(10);
+        thread.start();
     }
 
     public void check_food() {
@@ -137,8 +139,8 @@ public class Panel extends JPanel implements ActionListener {
         if("YES".equals(running)) {
             move();
             check_food();
-            collision();
         }
+        collision();
         repaint();
     }
 
